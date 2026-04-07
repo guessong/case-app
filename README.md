@@ -1,66 +1,173 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Insider One Champions League Simulator
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A football league simulation case study built for **Insider One**. Teams compete in a full round-robin tournament (home & away). The app simulates matches using a Poisson-distribution engine, tracks standings by Premier League rules, and forecasts championship probability via Monte Carlo simulation.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Screenshots
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+![Screenshot](docs/screenshot.png)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Team Management** — Add, edit, and delete teams with configurable power ratings (1–100)
+- **Fixture Generation** — Automatic round-robin schedule (circle method), home & away legs
+- **Week-by-Week Simulation** — Play one matchweek at a time or simulate the entire season at once
+- **League Standings** — Points, goal difference, goals scored; sorted by Premier League tiebreak rules (3 pts win, 1 pt draw)
+- **Championship Predictions** — Monte Carlo simulation (1,000 runs) showing each team's win probability; activates in the final 3 matchweeks
+- **Manual Result Editing** — Override any match result; standings and predictions recalculate instantly
+- **Simulation Reset** — Clear all results and restart from scratch
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tech Stack
 
-## Laravel Sponsors
+| Layer      | Technology                        |
+|------------|-----------------------------------|
+| Backend    | PHP 8.1, Laravel 10               |
+| Frontend   | Vue 3 (Composition API), Inertia.js |
+| Styling    | Tailwind CSS v4                   |
+| Database   | SQLite                            |
+| Dev Environment | Docker (Laravel Sail)        |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Installation
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Option A — Docker / Laravel Sail (recommended)
 
-## Contributing
+**Prerequisites:** Docker Desktop running.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# 1. Clone the repository
+git clone <repo-url> caseapp
+cd caseapp
 
-## Code of Conduct
+# 2. Install PHP dependencies (using a temporary composer container)
+docker run --rm -u "$(id -u):$(id -g)" \
+  -v "$(pwd):/var/www/html" \
+  -w /var/www/html \
+  laravelsail/php81-composer:latest \
+  composer install --ignore-platform-reqs
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3. Copy environment file
+cp .env.example .env
 
-## Security Vulnerabilities
+# 4. Start Sail
+./vendor/bin/sail up -d
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 5. Generate app key
+./vendor/bin/sail artisan key:generate
 
-## License
+# 6. Run migrations and seed default teams
+./vendor/bin/sail artisan migrate --seed
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 7. Install Node dependencies and build frontend assets
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run build
+```
+
+App is available at **http://localhost**.
+
+---
+
+### Option B — Local (without Docker)
+
+**Prerequisites:** PHP 8.1+, Composer, Node.js 18+, SQLite.
+
+```bash
+# 1. Clone and enter the project
+git clone <repo-url> caseapp
+cd caseapp
+
+# 2. Install dependencies
+composer install
+npm install
+
+# 3. Configure environment
+cp .env.example .env
+# Ensure DB_CONNECTION=sqlite and DB_DATABASE is set to an absolute path,
+# e.g.: DB_DATABASE=/absolute/path/to/caseapp/database/database.sqlite
+
+# 4. Create the SQLite file
+touch database/database.sqlite
+
+# 5. Generate app key and run migrations
+php artisan key:generate
+php artisan migrate --seed
+
+# 6. Build frontend assets
+npm run build
+
+# 7. Serve the application
+php artisan serve
+```
+
+App is available at **http://localhost:8000**.
+
+---
+
+## Running Tests
+
+```bash
+# Docker / Sail
+./vendor/bin/sail artisan test
+
+# Local
+php artisan test
+```
+
+The test suite covers the core service layer: fixture generation correctness, match simulation output validity, standings calculation, and Monte Carlo prediction bounds.
+
+---
+
+## Architecture
+
+The application follows a thin-controller / rich-service pattern. Controllers handle HTTP concerns only; all business logic lives in four dedicated services:
+
+```
+app/Services/
+├── FixtureGeneratorService.php   — Round-robin schedule builder
+├── MatchSimulationService.php    — Poisson-based match engine
+├── LeagueTableService.php        — Standings aggregation & sorting
+└── PredictionService.php         — Monte Carlo championship forecast
+```
+
+Inertia.js bridges Laravel and Vue 3 without a separate API layer — server responses are JSON page objects rendered client-side by Vue components. No REST endpoints are exposed publicly.
+
+---
+
+## Algorithm Highlights
+
+### Match Simulation — Poisson Distribution
+
+Each team carries a **power rating** (1–100). For a given fixture:
+
+1. **Expected goals** for each team are derived from the power ratio against the combined total:
+   ```
+   expectedGoals = (teamPower / (homeTeamPower + awayTeamPower)) * 3.0
+   ```
+2. The **home advantage multiplier** boosts the home team's effective power before this calculation.
+3. The opposing team's **goalkeeper factor** scales down the attacker's expected goals.
+4. Actual goals are sampled independently for each team from a **Poisson distribution** with the computed lambda — producing realistic, low-scoring football results with natural variance.
+
+### Championship Prediction — Monte Carlo Simulation
+
+Active during the final 3 matchweeks (when meaningful differentiation is possible):
+
+1. **1,000 independent simulations** are run over all remaining fixtures.
+2. Each simulation uses the same Poisson match engine, so results reflect actual team strengths.
+3. The team finishing first in each run earns a win count; ties are split fractionally.
+4. Final probability = `(wins in 1000 runs) / 1000`, expressed as a percentage.
+5. Once all matches are played, predictions switch to a **deterministic result** derived from actual standings (points → goal difference → goals scored).
+
+### Fixture Generation — Circle Method
+
+A standard round-robin scheduling algorithm:
+
+1. One team is fixed; the remaining `n-1` teams rotate around it each round.
+2. First half of the season: home/away assigned by position in the rotation.
+3. Second half: home/away reversed to guarantee every team plays each opponent once at home and once away.
+4. Odd numbers of teams are handled with a bye week (virtual placeholder team).
