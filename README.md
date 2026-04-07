@@ -33,7 +33,7 @@ A football league simulation case study built for **Insider One**. Teams compete
 **Prerequisites:** Docker Desktop running.
 
 ```bash
-git clone https://github.com/guessong/simulator-case-app.git caseapp
+git clone https://github.com/guessong/case-app.git caseapp
 cd caseapp
 make setup
 ```
@@ -50,7 +50,7 @@ Other commands: `make stop`, `make clean`.
 
 ```bash
 # 1. Clone and enter the project
-git clone https://github.com/guessong/simulator-case-app.git caseapp
+git clone https://github.com/guessong/case-app.git caseapp
 cd caseapp
 
 # 2. Install dependencies
