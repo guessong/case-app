@@ -108,16 +108,19 @@ class PredictionService
         return $points;
     }
 
+    /**
+     * When all matches are played, use the actual league standings
+     * (points, GD, GF) to determine the winner deterministically.
+     */
     private function deterministic($teams, array $points): array
     {
-        $maxPoints = max($points);
-        $leaders = array_keys(array_filter($points, fn ($p) => $p === $maxPoints));
-        $share = (int) round(100 / count($leaders));
+        $standings = app(LeagueTableService::class)->getStandings();
+        $winnerId = $standings[0]['team_id'] ?? null;
 
         return $teams->map(fn (Team $t) => [
             'team_id' => $t->id,
             'team_name' => $t->name,
-            'percentage' => in_array($t->id, $leaders) ? $share : 0,
+            'percentage' => $t->id === $winnerId ? 100 : 0,
         ])->toArray();
     }
 }
