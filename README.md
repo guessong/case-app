@@ -30,50 +30,27 @@ A football league simulation case study built for **Insider One**. Teams compete
 | Frontend   | Vue 3 (Composition API), Inertia.js |
 | Styling    | Tailwind CSS v4                   |
 | Database   | SQLite                            |
-| Dev Environment | Docker (Laravel Sail)        |
+| Dev Environment | Docker                       |
 
 ---
 
-## Installation
-
-### Option A — Docker / Laravel Sail (recommended)
+## Quick Start (Docker)
 
 **Prerequisites:** Docker Desktop running.
 
 ```bash
-# 1. Clone the repository
 git clone <repo-url> caseapp
 cd caseapp
-
-# 2. Install PHP dependencies (using a temporary composer container)
-docker run --rm -u "$(id -u):$(id -g)" \
-  -v "$(pwd):/var/www/html" \
-  -w /var/www/html \
-  laravelsail/php81-composer:latest \
-  composer install --ignore-platform-reqs
-
-# 3. Copy environment file
-cp .env.example .env
-
-# 4. Start Sail
-./vendor/bin/sail up -d
-
-# 5. Generate app key
-./vendor/bin/sail artisan key:generate
-
-# 6. Run migrations and seed default teams
-./vendor/bin/sail artisan migrate --seed
-
-# 7. Install Node dependencies and build frontend assets
-./vendor/bin/sail npm install
-./vendor/bin/sail npm run build
+make setup
 ```
 
-App is available at **http://localhost**.
+That's it. App is running at **http://localhost:8000**.
+
+Other commands: `make stop`, `make clean`.
 
 ---
 
-### Option B — Local (without Docker)
+## Installation (Local, without Docker)
 
 **Prerequisites:** PHP 8.1+, Composer, Node.js 18+, SQLite.
 
