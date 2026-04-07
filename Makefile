@@ -1,16 +1,24 @@
 .PHONY: setup start stop test clean
 
+# Find available port starting from a given port
+define find_port
+$(shell port=$(1); while lsof -ti:$$port >/dev/null 2>&1; do port=$$((port + 1)); done; echo $$port)
+endef
+
+APP_PORT ?= $(call find_port,8000)
+DB_PORT ?= $(call find_port,3306)
+
 # One command to rule them all - builds and starts the app
 setup:
-	docker compose up -d --build
+	APP_PORT=$(APP_PORT) DB_PORT=$(DB_PORT) docker compose up -d --build
 	@echo ""
-	@echo "✅ App is running at http://localhost:8000"
+	@echo "  App is running at http://localhost:$(APP_PORT)"
 	@echo ""
 
 # Start existing container
 start:
-	docker compose up -d
-	@echo "App is running at http://localhost:8000"
+	APP_PORT=$(APP_PORT) DB_PORT=$(DB_PORT) docker compose up -d
+	@echo "App is running at http://localhost:$(APP_PORT)"
 
 # Stop the app
 stop:
