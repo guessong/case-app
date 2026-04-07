@@ -3,17 +3,18 @@
 namespace App\Services;
 
 use App\Contracts\MatchSimulatorInterface;
-use App\Models\Fixture;
-use App\Models\MatchResult;
+use App\Contracts\Repositories\FixtureRepositoryInterface;
 use App\Models\Team;
 
 class MatchSimulationService implements MatchSimulatorInterface
 {
+    public function __construct(
+        private FixtureRepositoryInterface $fixtureRepo,
+    ) {}
+
     public function simulateWeek(int $week): array
     {
-        $fixtures = Fixture::with(['homeTeam', 'awayTeam', 'result'])
-            ->where('week', $week)
-            ->get();
+        $fixtures = $this->fixtureRepo->getByWeekWithRelations($week);
 
         $results = [];
 
@@ -41,7 +42,7 @@ class MatchSimulationService implements MatchSimulatorInterface
     public function simulateAllRemaining(): array
     {
         $allResults = [];
-        $totalWeeks = Fixture::max('week');
+        $totalWeeks = $this->fixtureRepo->getMaxWeek();
 
         for ($week = 1; $week <= $totalWeeks; $week++) {
             $allResults[$week] = $this->simulateWeek($week);
@@ -52,13 +53,10 @@ class MatchSimulationService implements MatchSimulatorInterface
 
     public function getCurrentWeek(): ?int
     {
-        $totalWeeks = Fixture::max('week');
+        $totalWeeks = $this->fixtureRepo->getMaxWeek();
         if ($totalWeeks === null) return null;
 
-        $nextUnplayed = Fixture::whereHas('result', fn ($q) => $q->where('is_played', false))
-            ->min('week');
-
-        return $nextUnplayed;
+        return $this->fixtureRepo->getNextUnplayedWeek();
     }
 
     /**

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Repositories\FixtureRepositoryInterface;
+use App\Contracts\Repositories\TeamRepositoryInterface;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
-use App\Models\Fixture;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -12,10 +13,15 @@ use Inertia\Response;
 
 class TeamController extends Controller
 {
+    public function __construct(
+        private TeamRepositoryInterface $teamRepo,
+        private FixtureRepositoryInterface $fixtureRepo,
+    ) {}
+
     public function index(): Response
     {
         return Inertia::render('Teams/Index', [
-            'teams' => Team::all(),
+            'teams' => $this->teamRepo->all(),
         ]);
     }
 
@@ -23,7 +29,7 @@ class TeamController extends Controller
     {
         $validated = $request->validated();
 
-        Team::create([
+        $this->teamRepo->create([
             'name' => $validated['name'],
             'power' => $validated['power'],
             'home_advantage' => 1.0 + ($validated['power'] / 500),
@@ -37,7 +43,7 @@ class TeamController extends Controller
     {
         $validated = $request->validated();
 
-        $team->update([
+        $this->teamRepo->update($team, [
             'name' => $validated['name'],
             'power' => $validated['power'],
             'home_advantage' => 1.0 + ($validated['power'] / 500),
@@ -49,11 +55,11 @@ class TeamController extends Controller
 
     public function destroy(Team $team): RedirectResponse
     {
-        if (Fixture::where('home_team_id', $team->id)->orWhere('away_team_id', $team->id)->exists()) {
+        if ($this->fixtureRepo->hasTeam($team->id)) {
             return redirect('/')->withErrors(['team' => 'Cannot delete team with active fixtures. Reset data first.']);
         }
 
-        $team->delete();
+        $this->teamRepo->delete($team);
 
         return redirect('/');
     }

@@ -2,14 +2,19 @@
 
 namespace App\Services;
 
-use App\Models\MatchResult;
-use App\Models\Team;
+use App\Contracts\Repositories\MatchResultRepositoryInterface;
+use App\Contracts\Repositories\TeamRepositoryInterface;
 
 class LeagueTableService
 {
+    public function __construct(
+        private TeamRepositoryInterface $teamRepo,
+        private MatchResultRepositoryInterface $matchResultRepo,
+    ) {}
+
     public function getStandings(): array
     {
-        $teams = Team::all();
+        $teams = $this->teamRepo->all();
         $standings = [];
 
         foreach ($teams as $team) {
@@ -27,9 +32,7 @@ class LeagueTableService
             ];
         }
 
-        $results = MatchResult::with('fixture')
-            ->where('is_played', true)
-            ->get();
+        $results = $this->matchResultRepo->getPlayedResults();
 
         foreach ($results as $result) {
             $homeId = $result->fixture->home_team_id;

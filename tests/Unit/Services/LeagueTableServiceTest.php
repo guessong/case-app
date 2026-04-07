@@ -18,7 +18,7 @@ class LeagueTableServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new LeagueTableService();
+        $this->service = app(LeagueTableService::class);
     }
 
     public function test_initial_standings_are_all_zeros(): void

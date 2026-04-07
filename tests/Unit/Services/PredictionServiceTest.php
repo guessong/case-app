@@ -20,14 +20,14 @@ class PredictionServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new PredictionService(new MatchSimulationService());
+        $this->service = app(PredictionService::class);
         $this->seedTeams();
-        (new FixtureGeneratorService())->generate();
+        app(FixtureGeneratorService::class)->generate();
     }
 
     public function test_predictions_return_all_teams(): void
     {
-        $sim = new MatchSimulationService();
+        $sim = app(MatchSimulationService::class);
         for ($w = 1; $w <= 3; $w++) {
             $sim->simulateWeek($w);
         }
@@ -38,7 +38,7 @@ class PredictionServiceTest extends TestCase
 
     public function test_predictions_sum_to_100(): void
     {
-        $sim = new MatchSimulationService();
+        $sim = app(MatchSimulationService::class);
         for ($w = 1; $w <= 3; $w++) {
             $sim->simulateWeek($w);
         }
@@ -85,7 +85,7 @@ class PredictionServiceTest extends TestCase
         }
 
         // Play only 2 weeks (threshold is 3 for 6-week league) - still zeros
-        $sim = new MatchSimulationService();
+        $sim = app(MatchSimulationService::class);
         $sim->simulateWeek(1);
         $sim->simulateWeek(2);
 

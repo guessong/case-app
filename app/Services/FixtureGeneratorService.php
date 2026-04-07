@@ -2,20 +2,26 @@
 
 namespace App\Services;
 
-use App\Models\Fixture;
-use App\Models\MatchResult;
-use App\Models\Team;
+use App\Contracts\Repositories\FixtureRepositoryInterface;
+use App\Contracts\Repositories\MatchResultRepositoryInterface;
+use App\Contracts\Repositories\TeamRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
 class FixtureGeneratorService
 {
+    public function __construct(
+        private TeamRepositoryInterface $teamRepo,
+        private FixtureRepositoryInterface $fixtureRepo,
+        private MatchResultRepositoryInterface $matchResultRepo,
+    ) {}
+
     public function generate(): void
     {
         DB::transaction(function () {
-            MatchResult::query()->delete();
-            Fixture::query()->delete();
+            $this->matchResultRepo->deleteAll();
+            $this->fixtureRepo->deleteAll();
 
-            $teams = Team::all();
+            $teams = $this->teamRepo->all();
             $teamIds = $teams->pluck('id')->toArray();
             $n = count($teamIds);
 
@@ -58,13 +64,13 @@ class FixtureGeneratorService
                 [$home, $away] = [$away, $home];
             }
 
-            $fixture = Fixture::create([
+            $fixture = $this->fixtureRepo->create([
                 'week' => $week,
                 'home_team_id' => $home,
                 'away_team_id' => $away,
             ]);
 
-            MatchResult::create([
+            $this->matchResultRepo->create([
                 'fixture_id' => $fixture->id,
                 'home_score' => 0,
                 'away_score' => 0,

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Fixture;
-use App\Models\MatchResult;
+use App\Contracts\Repositories\FixtureRepositoryInterface;
+use App\Contracts\Repositories\MatchResultRepositoryInterface;
 use App\Services\LeagueTableService;
 use App\Services\MatchSimulationService;
 use App\Services\PredictionService;
@@ -17,24 +17,20 @@ class SimulationController extends Controller
         private MatchSimulationService $matchSimulator,
         private LeagueTableService $leagueTable,
         private PredictionService $predictionService,
+        private FixtureRepositoryInterface $fixtureRepo,
+        private MatchResultRepositoryInterface $matchResultRepo,
     ) {}
 
     public function index(): Response
     {
         $currentWeek = $this->matchSimulator->getCurrentWeek();
-        $totalWeeks = Fixture::max('week') ?? 0;
+        $totalWeeks = $this->fixtureRepo->getMaxWeek() ?? 0;
 
         $displayWeek = $currentWeek ?? $totalWeeks;
 
-        $weekFixtures = Fixture::with(['homeTeam:id,name', 'awayTeam:id,name', 'result'])
-            ->where('week', $displayWeek)
-            ->get();
+        $weekFixtures = $this->fixtureRepo->getByWeekWithRelations($displayWeek);
 
-        $allWeeksResults = Fixture::with(['homeTeam:id,name', 'awayTeam:id,name', 'result'])
-            ->whereHas('result', fn ($q) => $q->where('is_played', true))
-            ->orderBy('week')
-            ->get()
-            ->groupBy('week');
+        $allWeeksResults = $this->fixtureRepo->getPlayedWithTeams();
 
         return Inertia::render('Simulation/Index', [
             'standings' => $this->leagueTable->getStandings(),
@@ -64,8 +60,8 @@ class SimulationController extends Controller
 
     public function reset(): RedirectResponse
     {
-        MatchResult::query()->delete();
-        Fixture::query()->delete();
+        $this->matchResultRepo->deleteAll();
+        $this->fixtureRepo->deleteAll();
         return redirect('/');
     }
 }

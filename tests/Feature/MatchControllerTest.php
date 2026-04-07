@@ -18,12 +18,12 @@ class MatchControllerTest extends TestCase
     {
         parent::setUp();
         $this->seedTeams();
-        (new FixtureGeneratorService())->generate();
+        app(FixtureGeneratorService::class)->generate();
     }
 
     public function test_update_match_result(): void
     {
-        (new MatchSimulationService())->simulateWeek(1);
+        app(MatchSimulationService::class)->simulateWeek(1);
 
         $result = MatchResult::first();
 
@@ -41,7 +41,7 @@ class MatchControllerTest extends TestCase
 
     public function test_update_validates_scores(): void
     {
-        (new MatchSimulationService())->simulateWeek(1);
+        app(MatchSimulationService::class)->simulateWeek(1);
         $result = MatchResult::first();
 
         $response = $this->put("/matches/{$result->id}", [

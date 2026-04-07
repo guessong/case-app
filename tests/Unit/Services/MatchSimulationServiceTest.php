@@ -19,9 +19,9 @@ class MatchSimulationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new MatchSimulationService();
+        $this->service = app(MatchSimulationService::class);
         $this->seedTeams();
-        (new FixtureGeneratorService())->generate();
+        app(FixtureGeneratorService::class)->generate();
     }
 
     public function test_simulate_week_marks_matches_as_played(): void

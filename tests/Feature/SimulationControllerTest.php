@@ -17,7 +17,7 @@ class SimulationControllerTest extends TestCase
     {
         parent::setUp();
         $this->seedTeams();
-        (new FixtureGeneratorService())->generate();
+        app(FixtureGeneratorService::class)->generate();
     }
 
     public function test_simulation_index_returns_200(): void

@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use App\Contracts\MatchSimulatorInterface;
-use App\Models\Fixture;
-use App\Models\MatchResult;
+use App\Contracts\Repositories\FixtureRepositoryInterface;
+use App\Contracts\Repositories\MatchResultRepositoryInterface;
+use App\Contracts\Repositories\TeamRepositoryInterface;
 use App\Models\Team;
 
 class PredictionService
@@ -12,18 +13,18 @@ class PredictionService
     private const SIMULATIONS = 1000;
 
     public function __construct(
-        private MatchSimulatorInterface $matchSimulator
+        private MatchSimulatorInterface $matchSimulator,
+        private TeamRepositoryInterface $teamRepo,
+        private FixtureRepositoryInterface $fixtureRepo,
+        private MatchResultRepositoryInterface $matchResultRepo,
     ) {}
 
     public function predict(): array
     {
-        $teams = Team::all();
-        $totalWeeks = Fixture::max('week') ?? 0;
+        $teams = $this->teamRepo->all();
+        $totalWeeks = $this->fixtureRepo->getMaxWeek() ?? 0;
 
-        $playedWeeks = MatchResult::where('is_played', true)
-            ->join('fixtures', 'match_results.fixture_id', '=', 'fixtures.id')
-            ->distinct('fixtures.week')
-            ->count('fixtures.week');
+        $playedWeeks = $this->matchResultRepo->getPlayedWeekCount();
 
         // Predictions start when entering the last 3 weeks (FAQ requirement)
         $predictionThreshold = max($totalWeeks - 3, 1);
@@ -37,9 +38,7 @@ class PredictionService
 
         $currentPoints = $this->getCurrentPoints($teams);
 
-        $remainingFixtures = Fixture::with(['homeTeam', 'awayTeam', 'result'])
-            ->whereHas('result', fn ($q) => $q->where('is_played', false))
-            ->get();
+        $remainingFixtures = $this->fixtureRepo->getRemainingFixtures();
 
         if ($remainingFixtures->isEmpty()) {
             return $this->deterministic($teams, $currentPoints);
@@ -89,9 +88,7 @@ class PredictionService
             $points[$team->id] = 0;
         }
 
-        $playedResults = MatchResult::with('fixture')
-            ->where('is_played', true)
-            ->get();
+        $playedResults = $this->matchResultRepo->getPlayedResults();
 
         foreach ($playedResults as $result) {
             $homeId = $result->fixture->home_team_id;

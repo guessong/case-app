@@ -17,7 +17,7 @@ class FixtureGeneratorServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new FixtureGeneratorService();
+        $this->service = app(FixtureGeneratorService::class);
     }
 
     public function test_generates_correct_number_of_weeks_for_4_teams(): void
