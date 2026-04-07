@@ -29,9 +29,9 @@
                     </div>
                 </div>
 
-                <!-- All played weeks results -->
-                <template v-for="(fixtures, week) in allWeeksResults" :key="week">
-                    <WeekResults :week="Number(week)" :fixtures="fixtures" />
+                <!-- All played weeks results (newest first) -->
+                <template v-for="week in sortedWeeks" :key="week">
+                    <WeekResults :week="Number(week)" :fixtures="allWeeksResults[week]" />
                 </template>
             </div>
 
@@ -67,6 +67,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import LeagueTable from '@/Components/LeagueTable.vue';
@@ -74,7 +75,7 @@ import WeekResults from '@/Components/WeekResults.vue';
 import ChampionshipPredictions from '@/Components/ChampionshipPredictions.vue';
 import MatchResultEditor from '@/Components/MatchResultEditor.vue';
 
-defineProps({
+const props = defineProps({
     standings: Array,
     currentWeek: Number,
     totalWeeks: Number,
@@ -83,6 +84,10 @@ defineProps({
     predictions: Array,
     isFinished: Boolean,
 });
+
+const sortedWeeks = computed(() =>
+    Object.keys(props.allWeeksResults).sort((a, b) => Number(b) - Number(a))
+);
 
 function playNext() {
     router.post('/simulation/play-next');
