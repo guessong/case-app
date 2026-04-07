@@ -1,26 +1,23 @@
 <template>
-    <div v-if="editing" class="flex items-center gap-1 px-2 min-w-[80px] justify-center">
-        <input v-model.number="homeScore" type="number" min="0" max="99"
-               class="w-10 text-center border rounded py-0.5 text-sm" />
-        <span class="text-gray-400">-</span>
-        <input v-model.number="awayScore" type="number" min="0" max="99"
-               class="w-10 text-center border rounded py-0.5 text-sm" />
-        <button @click="save" class="text-green-600 hover:text-green-800 ml-1" title="Save">
-            &#10003;
-        </button>
-        <button @click="editing = false" class="text-red-500 hover:text-red-700" title="Cancel">
-            &#10005;
-        </button>
-    </div>
-    <div v-else class="flex items-center gap-1 px-2 min-w-[60px] justify-center cursor-pointer group"
-         @click="startEdit">
-        <template v-if="result?.is_played">
-            <span class="font-bold">{{ result.home_score }}</span>
-            <span class="text-gray-400">-</span>
-            <span class="font-bold">{{ result.away_score }}</span>
-            <span class="text-gray-300 opacity-0 group-hover:opacity-100 ml-1 text-xs">&#9998;</span>
+    <div class="mx-3 min-w-[56px] text-center">
+        <div v-if="editing" class="inline-flex items-center gap-1 bg-slate-900 px-1.5 py-0.5 rounded-md">
+            <input v-model.number="homeScore" type="number" min="0" max="99"
+                   class="w-8 text-center bg-slate-800 border border-slate-600 rounded text-xs text-white py-0.5" />
+            <span class="text-slate-500 text-xs">-</span>
+            <input v-model.number="awayScore" type="number" min="0" max="99"
+                   class="w-8 text-center bg-slate-800 border border-slate-600 rounded text-xs text-white py-0.5" />
+            <button @click="save" class="text-teal-400 hover:text-teal-300 text-xs ml-0.5">&#10003;</button>
+            <button @click="editing = false" class="text-red-400 hover:text-red-300 text-xs">&#10005;</button>
+        </div>
+        <template v-else>
+            <span v-if="result?.is_played"
+                  @click="startEdit"
+                  class="inline-flex items-center gap-1.5 bg-slate-900 px-2.5 py-0.5 rounded-md font-mono font-bold text-white text-xs cursor-pointer hover:bg-slate-800 transition-colors group">
+                {{ result.home_score }} - {{ result.away_score }}
+                <span class="text-slate-600 opacity-0 group-hover:opacity-100 text-[10px]">&#9998;</span>
+            </span>
+            <span v-else class="text-slate-600">vs</span>
         </template>
-        <span v-else class="text-gray-400">-</span>
     </div>
 </template>
 
