@@ -1,6 +1,16 @@
 <?php
 
+use App\Http\Controllers\FixtureController;
+use App\Http\Controllers\MatchController;
+use App\Http\Controllers\SimulationController;
+use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', fn () => Inertia::render('Teams/Index'));
+Route::get('/', [TeamController::class, 'index']);
+Route::get('/fixtures', [FixtureController::class, 'index']);
+Route::post('/fixtures/generate', [FixtureController::class, 'generate']);
+Route::get('/simulation', [SimulationController::class, 'index']);
+Route::post('/simulation/play-next', [SimulationController::class, 'playNext']);
+Route::post('/simulation/play-all', [SimulationController::class, 'playAll']);
+Route::post('/simulation/reset', [SimulationController::class, 'reset']);
+Route::put('/matches/{matchResult}', [MatchController::class, 'update']);
