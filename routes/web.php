@@ -7,6 +7,9 @@ use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [TeamController::class, 'index']);
+Route::post('/teams', [TeamController::class, 'store']);
+Route::put('/teams/{team}', [TeamController::class, 'update']);
+Route::delete('/teams/{team}', [TeamController::class, 'destroy']);
 Route::get('/fixtures', [FixtureController::class, 'index']);
 Route::post('/fixtures/generate', [FixtureController::class, 'generate']);
 Route::get('/simulation', [SimulationController::class, 'index']);

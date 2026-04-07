@@ -9,6 +9,10 @@ class TeamSeeder extends Seeder
 {
     public function run(): void
     {
+        if (Team::count() > 0) {
+            return;
+        }
+
         $teams = [
             ['name' => 'Chelsea',         'power' => 90, 'home_advantage' => 1.20, 'goalkeeper_factor' => 0.88],
             ['name' => 'Arsenal',         'power' => 85, 'home_advantage' => 1.18, 'goalkeeper_factor' => 0.82],
