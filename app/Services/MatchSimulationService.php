@@ -2,11 +2,12 @@
 
 namespace App\Services;
 
+use App\Contracts\MatchSimulatorInterface;
 use App\Models\Fixture;
 use App\Models\MatchResult;
 use App\Models\Team;
 
-class MatchSimulationService
+class MatchSimulationService implements MatchSimulatorInterface
 {
     public function simulateWeek(int $week): array
     {
@@ -54,19 +55,10 @@ class MatchSimulationService
         $totalWeeks = Fixture::max('week');
         if ($totalWeeks === null) return null;
 
-        for ($week = 1; $week <= $totalWeeks; $week++) {
-            $allPlayed = MatchResult::whereHas('fixture', fn ($q) => $q->where('week', $week))
-                ->where('is_played', true)
-                ->count();
+        $nextUnplayed = Fixture::whereHas('result', fn ($q) => $q->where('is_played', false))
+            ->min('week');
 
-            $totalInWeek = Fixture::where('week', $week)->count();
-
-            if ($allPlayed < $totalInWeek) {
-                return $week;
-            }
-        }
-
-        return null; // all played
+        return $nextUnplayed;
     }
 
     /**

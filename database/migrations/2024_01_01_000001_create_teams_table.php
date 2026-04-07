@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->integer('power');           // 1-100 team overall strength
             $table->float('home_advantage');    // multiplier, e.g. 1.15
             $table->float('goalkeeper_factor'); // 0.0-1.0, higher = better keeper

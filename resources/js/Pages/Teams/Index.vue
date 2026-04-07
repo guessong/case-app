@@ -47,6 +47,10 @@
                 </table>
             </div>
 
+            <p v-if="$page.props.errors?.team" class="mt-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg">
+                {{ $page.props.errors.team }}
+            </p>
+
             <!-- Add Team -->
             <div class="mt-4 bg-slate-900 rounded-xl border border-slate-800 p-4">
                 <h3 class="text-xs font-heading font-semibold text-slate-500 uppercase tracking-wider mb-3">Add Team</h3>

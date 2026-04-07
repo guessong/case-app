@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateMatchResultRequest;
 use App\Models\MatchResult;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class MatchController extends Controller
 {
-    public function update(Request $request, MatchResult $matchResult): RedirectResponse
+    public function update(UpdateMatchResultRequest $request, MatchResult $matchResult): RedirectResponse
     {
-        $validated = $request->validate([
-            'home_score' => 'required|integer|min:0|max:99',
-            'away_score' => 'required|integer|min:0|max:99',
-        ]);
+        if (!$matchResult->is_played) {
+            abort(422, 'Cannot edit an unplayed match.');
+        }
 
-        $matchResult->update($validated);
+        $matchResult->update($request->validated());
         return redirect('/simulation');
     }
 }

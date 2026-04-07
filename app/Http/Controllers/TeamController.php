@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTeamRequest;
+use App\Http\Requests\UpdateTeamRequest;
+use App\Models\Fixture;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,12 +19,9 @@ class TeamController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreTeamRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:teams,name',
-            'power' => 'required|integer|min:1|max:100',
-        ]);
+        $validated = $request->validated();
 
         Team::create([
             'name' => $validated['name'],
@@ -34,12 +33,9 @@ class TeamController extends Controller
         return redirect('/');
     }
 
-    public function update(Request $request, Team $team): RedirectResponse
+    public function update(UpdateTeamRequest $request, Team $team): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:teams,name,' . $team->id,
-            'power' => 'required|integer|min:1|max:100',
-        ]);
+        $validated = $request->validated();
 
         $team->update([
             'name' => $validated['name'],
@@ -53,6 +49,10 @@ class TeamController extends Controller
 
     public function destroy(Team $team): RedirectResponse
     {
+        if (Fixture::where('home_team_id', $team->id)->orWhere('away_team_id', $team->id)->exists()) {
+            return redirect('/')->withErrors(['team' => 'Cannot delete team with active fixtures. Reset data first.']);
+        }
+
         $team->delete();
 
         return redirect('/');

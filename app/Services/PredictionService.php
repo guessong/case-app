@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\MatchSimulatorInterface;
 use App\Models\Fixture;
 use App\Models\MatchResult;
 use App\Models\Team;
@@ -11,7 +12,7 @@ class PredictionService
     private const SIMULATIONS = 1000;
 
     public function __construct(
-        private MatchSimulationService $matchSimulator
+        private MatchSimulatorInterface $matchSimulator
     ) {}
 
     public function predict(): array

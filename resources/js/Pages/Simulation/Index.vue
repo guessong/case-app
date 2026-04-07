@@ -54,17 +54,17 @@
             <div class="border-t border-slate-800 bg-slate-900/90 backdrop-blur-sm">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
                     <button @click="playAll"
-                        :disabled="isFinished"
+                        :disabled="loading || isFinished"
                         class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-heading font-semibold py-2 px-5 rounded-lg
                                text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-                        Play All Weeks
+                        {{ loading ? 'Simulating...' : 'Play All Weeks' }}
                     </button>
 
                     <button @click="playNext"
-                        :disabled="isFinished"
+                        :disabled="loading || isFinished"
                         class="bg-slate-700 hover:bg-slate-600 text-white font-heading font-semibold py-2 px-5 rounded-lg
                                text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-                        Play Next Week
+                        {{ loading ? 'Simulating...' : 'Play Next Week' }}
                     </button>
 
                     <button @click="resetData"
@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import LeagueTable from '@/Components/LeagueTable.vue';
@@ -97,16 +97,20 @@ const props = defineProps({
     isFinished: Boolean,
 });
 
+const loading = ref(false);
+
 const sortedWeeks = computed(() =>
     Object.keys(props.allWeeksResults).sort((a, b) => Number(b) - Number(a))
 );
 
 function playNext() {
-    router.post('/simulation/play-next');
+    loading.value = true;
+    router.post('/simulation/play-next', {}, { onFinish: () => loading.value = false });
 }
 
 function playAll() {
-    router.post('/simulation/play-all');
+    loading.value = true;
+    router.post('/simulation/play-all', {}, { onFinish: () => loading.value = false });
 }
 
 function resetData() {
