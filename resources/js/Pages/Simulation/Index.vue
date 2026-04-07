@@ -9,8 +9,9 @@
             </div>
 
             <!-- Week Results -->
-            <div class="lg:col-span-4">
-                <div class="bg-white shadow rounded overflow-hidden">
+            <div class="lg:col-span-4 space-y-4">
+                <!-- Next week to play (unplayed) -->
+                <div v-if="!isFinished" class="bg-white shadow rounded overflow-hidden">
                     <div class="bg-gray-700 text-white py-2 px-4 font-bold">
                         Week {{ currentWeek }}
                     </div>
@@ -28,13 +29,10 @@
                     </div>
                 </div>
 
-                <!-- All weeks results (shown after Play All) -->
-                <div v-if="Object.keys(allWeeksResults).length > 1" class="mt-4 space-y-3">
-                    <template v-for="(fixtures, week) in allWeeksResults" :key="week">
-                        <WeekResults v-if="Number(week) !== currentWeek"
-                                     :week="Number(week)" :fixtures="fixtures" />
-                    </template>
-                </div>
+                <!-- All played weeks results -->
+                <template v-for="(fixtures, week) in allWeeksResults" :key="week">
+                    <WeekResults :week="Number(week)" :fixtures="fixtures" />
+                </template>
             </div>
 
             <!-- Championship Predictions -->
