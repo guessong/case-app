@@ -4,12 +4,6 @@ A football league simulation case study built for **Insider One**. Teams compete
 
 ---
 
-## Screenshots
-
-![Screenshot](docs/screenshot.png)
-
----
-
 ## Features
 
 - **Team Management** — Add, edit, and delete teams with configurable power ratings (1–100)
@@ -29,7 +23,7 @@ A football league simulation case study built for **Insider One**. Teams compete
 | Backend    | PHP 8.1, Laravel 10               |
 | Frontend   | Vue 3 (Composition API), Inertia.js |
 | Styling    | Tailwind CSS v4                   |
-| Database   | SQLite                            |
+| Database   | MySQL 8.0                         |
 | Dev Environment | Docker                       |
 
 ---
@@ -39,7 +33,7 @@ A football league simulation case study built for **Insider One**. Teams compete
 **Prerequisites:** Docker Desktop running.
 
 ```bash
-git clone <repo-url> caseapp
+git clone https://github.com/guessong/simulator-case-app.git caseapp
 cd caseapp
 make setup
 ```
@@ -52,11 +46,11 @@ Other commands: `make stop`, `make clean`.
 
 ## Installation (Local, without Docker)
 
-**Prerequisites:** PHP 8.1+, Composer, Node.js 18+, SQLite.
+**Prerequisites:** PHP 8.1+, Composer, Node.js 18+, MySQL 8.0.
 
 ```bash
 # 1. Clone and enter the project
-git clone <repo-url> caseapp
+git clone https://github.com/guessong/simulator-case-app.git caseapp
 cd caseapp
 
 # 2. Install dependencies
@@ -65,20 +59,16 @@ npm install
 
 # 3. Configure environment
 cp .env.example .env
-# Ensure DB_CONNECTION=sqlite and DB_DATABASE is set to an absolute path,
-# e.g.: DB_DATABASE=/absolute/path/to/caseapp/database/database.sqlite
+# Update DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD for your MySQL instance
 
-# 4. Create the SQLite file
-touch database/database.sqlite
-
-# 5. Generate app key and run migrations
+# 4. Generate app key and run migrations
 php artisan key:generate
 php artisan migrate --seed
 
-# 6. Build frontend assets
+# 5. Build frontend assets
 npm run build
 
-# 7. Serve the application
+# 6. Serve the application
 php artisan serve
 ```
 
