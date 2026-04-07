@@ -6,13 +6,13 @@ RUN apt-get update && apt-get install -y \
     curl \
     zip \
     unzip \
-    libsqlite3-dev \
     nodejs \
     npm \
+    default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_sqlite
+RUN docker-php-ext-install pdo pdo_mysql
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -29,15 +29,14 @@ RUN npm install
 # Build frontend
 RUN npm run build
 
-# Setup database
+# Copy env and generate key
 RUN cp .env.example .env \
-    && sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env \
-    && sed -i '/^DB_HOST/d; /^DB_PORT/d; /^DB_DATABASE=laravel/d; /^DB_USERNAME/d; /^DB_PASSWORD/d' .env \
-    && touch database/database.sqlite \
-    && php artisan key:generate \
-    && php artisan migrate --force \
-    && php artisan db:seed --force
+    && php artisan key:generate
 
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Entrypoint: wait for DB, migrate, seed, then serve
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
