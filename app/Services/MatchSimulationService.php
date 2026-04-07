@@ -87,21 +87,15 @@ class MatchSimulationService
             $homePower *= $home->home_advantage;
         }
 
-        // Use exponential scaling to amplify power differences
-        // power 92 vs 85: ratio becomes ~1.65 vs ~1.35 instead of ~1.50 vs ~1.44
-        $homeStrength = pow($homePower, 1.5);
-        $awayStrength = pow($awayPower, 1.5);
-        $totalStrength = $homeStrength + $awayStrength;
-
-        $homeExpectedGoals = ($homeStrength / $totalStrength) * 3.2;
-        $awayExpectedGoals = ($awayStrength / $totalStrength) * 3.2;
+        $homeExpectedGoals = ($homePower / ($homePower + $awayPower)) * 3.0;
+        $awayExpectedGoals = ($awayPower / ($homePower + $awayPower)) * 3.0;
 
         // Goalkeeper factor reduces opponent goals
         $homeExpectedGoals *= (1 - $away->goalkeeper_factor * 0.3);
         $awayExpectedGoals *= (1 - $home->goalkeeper_factor * 0.3);
 
-        $homeExpectedGoals = max(0.2, $homeExpectedGoals);
-        $awayExpectedGoals = max(0.2, $awayExpectedGoals);
+        $homeExpectedGoals = max(0.3, $homeExpectedGoals);
+        $awayExpectedGoals = max(0.3, $awayExpectedGoals);
 
         $homeScore = $this->poissonRandom($homeExpectedGoals);
         $awayScore = $this->poissonRandom($awayExpectedGoals);
