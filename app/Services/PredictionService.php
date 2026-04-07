@@ -24,8 +24,9 @@ class PredictionService
             ->distinct('fixtures.week')
             ->count('fixtures.week');
 
-        // Only predict from week 4 onwards
-        if ($playedWeeks < 4) {
+        // Predictions start when entering the last 3 weeks (FAQ requirement)
+        $predictionThreshold = max($totalWeeks - 3, 1);
+        if ($playedWeeks < $predictionThreshold) {
             return $teams->map(fn (Team $t) => [
                 'team_id' => $t->id,
                 'team_name' => $t->name,

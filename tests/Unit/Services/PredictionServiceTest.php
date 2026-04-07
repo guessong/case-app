@@ -28,7 +28,7 @@ class PredictionServiceTest extends TestCase
     public function test_predictions_return_all_teams(): void
     {
         $sim = new MatchSimulationService();
-        for ($w = 1; $w <= 4; $w++) {
+        for ($w = 1; $w <= 3; $w++) {
             $sim->simulateWeek($w);
         }
 
@@ -39,7 +39,7 @@ class PredictionServiceTest extends TestCase
     public function test_predictions_sum_to_100(): void
     {
         $sim = new MatchSimulationService();
-        for ($w = 1; $w <= 4; $w++) {
+        for ($w = 1; $w <= 3; $w++) {
             $sim->simulateWeek($w);
         }
 
@@ -75,10 +75,21 @@ class PredictionServiceTest extends TestCase
         $this->assertEquals(100, $topTeam['percentage']);
     }
 
-    public function test_returns_zero_for_all_before_week_4(): void
+    public function test_returns_zero_for_all_before_last_3_weeks(): void
     {
+        // With 0 weeks played, should return all zeros
         $predictions = $this->service->predict();
 
+        foreach ($predictions as $p) {
+            $this->assertEquals(0, $p['percentage']);
+        }
+
+        // Play only 2 weeks (threshold is 3 for 6-week league) - still zeros
+        $sim = new MatchSimulationService();
+        $sim->simulateWeek(1);
+        $sim->simulateWeek(2);
+
+        $predictions = $this->service->predict();
         foreach ($predictions as $p) {
             $this->assertEquals(0, $p['percentage']);
         }
